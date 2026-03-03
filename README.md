@@ -8,7 +8,7 @@ Each sensor can have open incidents (e.g. hardware issues, weather‑related dow
 
 The solution is built around a **PostgreSQL database**, a **ClickUp → PostgreSQL ETL script**, and a **Grafana dashboard** on top.
 
-System architecture
+![System architecture](assets/architecture.png)
 
 **Database layer**
 
@@ -50,7 +50,7 @@ The dashboard is built on top of the `observatories` and `sno_tasks` tables and 
 - **Sensor map** – geomap of observatories, colored by the highest‑priority open task per sensor.
 - **Active tasks table** – list of open tasks for the selected sensor(s), sorted by priority.
 
-![Grafana dashboard overview](assets/dashboard-overview.png)
+![Grafana dashboard overview](assets/dashboard_overview.png)
 
 ### Dashboard variable
 
