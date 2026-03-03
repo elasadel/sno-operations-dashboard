@@ -20,6 +20,7 @@ The solution is built around a **PostgreSQL database**, a **ClickUp → PostgreS
 
 - A Python script (fetch_clickup.py) connects to the ClickUp API using environment variables (list ID and API token).
 - It fetches the latest tasks for the SNO Operations list, transforms them into the schema expected by sno_tasks (including status, priority, timestamps, and effort fields), and upserts them into PostgreSQL.
+![ClickUp incident list](assets/clickup_incident_list.png)
 - This script can be run on a schedule (e.g. cron, CI, or an external scheduler) so that the database always reflects the current incident state in ClickUp.
 
 **Analytics & visualization layer**
