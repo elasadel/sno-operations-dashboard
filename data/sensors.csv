@@ -1,0 +1,12 @@
+Observatory_ID,Name,Country,Lat,Lon,Sensor
+ES-01,La Palma Observatory,Spain,28.76,-17.89,Panoptes-2
+CY-01,Cyprus Optical Site,Cyprus,35.13,33.42,Panoptes-5
+AU-01,Siding Spring Observatory,Australia,-31.27,149.07,Panoptes-6
+HU-01,Piszkésteto Mountain Station,Hungary,47.92,19.17,Panoptes-8
+US-01,Mt Wilson Observatory,USA,34.06,-118.24,Panoptes-9
+KR-01,Bohyun Observatory,South Korea,36.17,128.87,Panoptes-12
+NA-01,HESS Site,Namibia,-23.27,16.50,CONST-002
+PL-01,Polish Astronomical Site,Poland,52.23,18.00,CONST-003
+NZ-01,Mt John Observatory,New Zealand,-43.99,170.87,CONST-005
+ES-02,Calar Alto Observatory,Spain,37.21,-2.55,CONST-H01(A-G)
+ES-02,Calar Alto Observatory,Spain,37.21,-2.55,HYDRA-02(A-F)

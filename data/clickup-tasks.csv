@@ -1,0 +1,26 @@
+Task Name,List,Status,Priority,Assignee,Created Date,Due Date,Closed Date,Tags,Observatory_ID,Sensor,Incident_Type,Estimated Hours,Actual Hours
+Panoptes-2 mount unresponsive,SNO Operations,Blocked,Urgent,Anna K. (SNO Engineer),2026-02-20,2026-02-22,,incident,ES-01,Panoptes-2,hardware_failure,12,
+Calibrate HYDRA-02 camera alignment,SNO Operations,In Progress,High,Marek P. (SNO Tech),2026-02-25,2026-03-05,,calibration,ES-02,HYDRA-02(A-F),calibration_drift,6,
+CONST-003 connectivity lost,SNO Operations,In Progress,Urgent,Piotr S. (SNO Lead),2026-02-28,2026-03-01,,incident,PL-01,CONST-003,connectivity,8,
+Routine maintenance Panoptes-6,SNO Operations,To Do,Normal,Juan M. (SNO Engineer),2026-03-02,2026-03-08,,maintenance,AU-01,Panoptes-6,N/A,4,
+Panoptes-12 tracking software crash,SNO Operations,Done,High,Kim J. (SNO Tech),2026-02-15,2026-02-20,2026-02-19,incident,KR-01,Panoptes-12,software_error,5,4.5
+High winds - close domes ES-02,SNO Operations,Done,Urgent,Carlos R. (SNO Ops),2026-02-18,2026-02-18,2026-02-18,incident,ES-02,CONST-H01(A-G),weather,2,1.8
+Panoptes-5 focus drift detected,SNO Operations,To Do,High,Elena K. (SNO Engineer),2026-02-27,2026-03-04,,calibration,CY-01,Panoptes-5,calibration_drift,6,
+Network timeout CONST-002,SNO Operations,In Progress,High,Thabo N. (SNO Tech),2026-02-26,2026-03-02,,incident,NA-01,CONST-002,connectivity,10,
+Panoptes-8 mirror cleaning,SNO Operations,To Do,Normal,Laszlo T. (SNO Engineer),2026-03-01,2026-03-07,,maintenance,HU-01,Panoptes-8,N/A,3,
+Power surge damaged HYDRA-02 mount,SNO Operations,Blocked,Urgent,Miguel S. (SNO Lead),2026-02-21,,,incident,ES-02,HYDRA-02(A-F),hardware_failure,16,
+ABOT scheduler failed CONST-005,SNO Operations,Done,High,Sarah W. (SNO Engineer),2026-02-22,2026-02-28,2026-02-27,incident,NZ-01,CONST-005,software_error,7,6.2
+Panoptes-9 weather station offline,SNO Operations,In Progress,Normal,Mike D. (SNO Tech),2026-02-24,2026-03-03,,incident,US-01,Panoptes-9,connectivity,4,
+Monthly calibration Panoptes-6,SNO Operations,To Do,Normal,David B. (SNO Engineer),2026-03-05,2026-03-10,,calibration,AU-01,Panoptes-6,calibration_drift,5,
+Emergency dome repair ES-01,SNO Operations,Done,Urgent,Maria G. (SNO Ops),2026-02-17,2026-02-17,2026-02-17,incident,ES-01,Panoptes-2,hardware_failure,8,7.5
+Fog delay - reschedule observations,SNO Operations,Done,Normal,Anna K. (SNO Engineer),2026-02-19,2026-02-21,2026-02-20,incident,CY-01,Panoptes-5,weather,3,2.8
+Mount encoder failure CONST-003,SNO Operations,In Progress,High,Tomasz W. (SNO Tech),2026-02-23,2026-02-28,,incident,PL-01,CONST-003,hardware_failure,12,
+Software update HYDRA-02,SNO Operations,To Do,Normal,Pedro L. (SNO Engineer),2026-03-03,2026-03-06,,maintenance,ES-02,HYDRA-02(A-F),N/A,4,
+Fiber optic cable damage AU-01,SNO Operations,Blocked,Urgent,Rachel T. (SNO Lead),2026-02-28,,,incident,AU-01,Panoptes-6,connectivity,20,
+CCD cooling failure Panoptes-12,SNO Operations,Done,High,Lee S. (SNO Tech),2026-02-16,2026-02-22,2026-02-21,incident,KR-01,Panoptes-12,hardware_failure,9,8.1
+Dust storm - sensors covered NA-01,SNO Operations,In Progress,High,Johann K. (SNO Engineer),2026-02-25,2026-02-27,,incident,NA-01,CONST-002,weather,6,
+Filter wheel jam HU-01,SNO Operations,To Do,High,Zoltan F. (SNO Tech),2026-02-28,2026-03-04,,incident,HU-01,Panoptes-8,hardware_failure,10,
+GPS sync lost US-01,SNO Operations,Done,Normal,Jennifer L. (SNO Engineer),2026-02-14,2026-02-18,2026-02-17,incident,US-01,Panoptes-9,connectivity,4,3.7
+Quarterly maintenance NZ-01,SNO Operations,To Do,Normal,James H. (SNO Engineer),2026-03-06,2026-03-12,,maintenance,NZ-01,CONST-005,N/A,8,
+Lightning strike damage PL-01,SNO Operations,Blocked,Urgent,Katarzyna M. (SNO Lead),2026-02-27,,,incident,PL-01,CONST-003,hardware_failure,24,
+Telescope alignment drift ES-02,SNO Operations,In Progress,High,Antonio R. (SNO Tech),2026-02-21,2026-02-26,,calibration,ES-02,CONST-H01(A-G),calibration_drift,7,

@@ -12,24 +12,23 @@ The solution is built around a **PostgreSQL database**, a **ClickUp → PostgreS
 
 **Database layer**
 
-- observatories stores the static description of each site: a unique observatory_id, sensor identifier, human‑readable name, country, and lat / lon coordinates.
+- sensors stores the static description of each site: observatory_id, sensor identifier, human‑readable name, country, and lat / lon coordinates.
 - sno_tasks stores operational incidents and maintenance work coming from ClickUp: task identifiers and names, status, priority, assignee_name, lifecycle timestamps (created_date, due_date, closed_date, updated_at), free‑form tags, and operational details such as incident_type, estimated_hours, and actual_hours.
-- The two tables are linked by observatory_id and sensor, which lets us join incidents with their physical location and show them on a map.
 
 **ETL / integration layer**
 
 - A Python script (fetch_clickup.py) connects to the ClickUp API using environment variables (list ID and API token).
-- It fetches the latest tasks for the SNO Operations list, transforms them into the schema expected by sno_tasks (including status, priority, timestamps, and effort fields), and upserts them into PostgreSQL.
+- It fetches the tasks for the SNO Operations list, transforms them into the schema expected by sno_tasks (including status, priority, timestamps, and effort fields), and upserts them into PostgreSQL.
 ![ClickUp incident list](assets/clickup_incident_list.png)
 - This script can be run on a schedule (e.g. cron, CI, or an external scheduler) so that the database always reflects the current incident state in ClickUp.
 
 **Analytics & visualization layer**
 
 - Grafana is configured to use the PostgreSQL database as a data source.
-- Panels query observatories and sno_tasks to power:
-- a live list of open incidents with priority and assignee,
-- a map of observatories with sensors color‑coded by the highest‑priority open incident,
-- time‑series and aggregate metrics such as MTTR, percentage of unhealthy sensors, and effort‑accuracy (estimated vs. actual hours).
+- Panels query sensors and sno_tasks to power:
+  - a live list of open incidents with priority and assignee,
+  - a map of sensors with sensors color‑coded by the highest‑priority open incident,
+  - time‑series and aggregate metrics such as MTTR, percentage of unhealthy sensors, and effort‑accuracy (estimated vs. actual hours).
 
 ### **Synthetic Data Generation**
 
@@ -37,18 +36,17 @@ To keep the project realistic, all records are **synthetic but business‑driven
 
 - I started from what I know about the company’s business model and roughly where their sensors are deployed .
 - Using that context, I used AI to generate observatory locations and incident‑like tasks that feel plausible for this kind of sensor network, while freely inventing details such as incident types, priorities, and repair times.
-- The generated observatories were saved to CSV and imported into PostgreSQL, while the generated incident tasks were imported into ClickUp and then synced into the sno_tasks table via the fetch_clickup.py integration script.
+- The generated sensors were saved to CSV and imported into PostgreSQL, while the generated incident tasks were imported into ClickUp and then synced into the sno_tasks table via the fetch_clickup.py integration script.
 
-This approach makes the dataset rich and believable enough for serious analysis and dashboard design, while staying safe to share in a recruitment/demo context.
 
 ## Grafana dashboard
 
-The dashboard is built on top of the `observatories` and `sno_tasks` tables and is designed for **quick situational awareness**:
+The dashboard is built on top of the `sensors` and `sno_tasks` tables and is designed for **quick situational awareness**:
 
 - **Unhealthy Sensors** – percentage of sensors with at least one non‑maintenance task that is not `done`.
 - **MTTR** – average `actual_hours` to resolve non‑maintenance tasks that are `done`.
 - **Effort Accuracy Ratio** – how close estimates are to reality: average actual hours divided by average estimated hours.
-- **Sensor map** – geomap of observatories, colored by the highest‑priority open task per sensor.
+- **Sensor map** – geomap of sensors, colored by the highest‑priority open task per observatory (location).
 - **Active tasks table** – list of open tasks for the selected sensor(s), sorted by priority.
 
 ![Grafana dashboard overview](assets/dashboard_overview.png)
@@ -60,7 +58,7 @@ At the top there is a dropdown variable that controls the whole dashboard:
 - **Name**: `selected_sensors`
 - **Query**:
   ```sql
-  SELECT DISTINCT sensor FROM observatories;
+  SELECT DISTINCT sensor FROM sensors;
   ```
 - **Behavior**: when a sensor (or sensors) is selected, the geomap highlights that sensor and the tasks table is filtered to only those tasks.
 
@@ -85,29 +83,29 @@ WITH tasks_enriched AS (
   WHERE status != 'done' AND tags NOT LIKE '%maintenance%'
 )
 SELECT 
-  o.sensor,
-  o.name,
-  o.lat, 
-  o.lon, 
+  s.sensor,
+  s.name,
+  s.lat, 
+  s.lon, 
   CASE 
     WHEN min(t.priority_number) = 1 THEN 'Urgent'
     WHEN min(t.priority_number) = 2 THEN 'High'
     WHEN min(t.priority_number) = 3 THEN 'Normal'
     ELSE 'Healthy'
-  END AS priority_status,
+  END as priority_status,
   CASE 
-    WHEN o.sensor IN (${selected_sensors:sqlstring}) THEN 10
+    WHEN s.sensor IN (${selected_sensors:sqlstring}) THEN 10
     ELSE 5
   END AS marker_size,
   CASE 
-    WHEN o.sensor IN (${selected_sensors:sqlstring}) THEN o.sensor
+    WHEN s.sensor IN (${selected_sensors:sqlstring}) THEN s.sensor
     ELSE ''
   END AS label
-FROM observatories o
+FROM sensors s
 LEFT JOIN tasks_enriched t 
-  ON o.sensor = t.sensor 
- AND o.observatory_id = t.observatory_id
-GROUP BY o.sensor, o.name, o.lat, o.lon;
+  ON s.sensor = t.sensor 
+  AND s.observatory_id = t.observatory_id
+GROUP BY s.sensor, s.name, s.lat, s.lon
 ```
 
 **Active tasks table**
@@ -142,12 +140,12 @@ Percentage of sensors that currently have at least one non‑maintenance task th
 
 ```sql
 SELECT 
-  COUNT(DISTINCT CASE WHEN t.tags NOT LIKE '%maintenance%' THEN o.sensor END) * 100.00 
-  / COUNT(DISTINCT o.sensor) AS unhealthy_pct
-FROM observatories o
+  COUNT(DISTINCT CASE WHEN t.tags NOT LIKE '%maintenance%' THEN s.sensor END) * 100.00 
+  / COUNT(DISTINCT s.sensor) AS unhealthy_pct
+FROM sensors s
 LEFT JOIN sno_tasks t 
-  ON o.sensor = t.sensor 
- AND t.status != 'done';
+  ON s.sensor = t.sensor 
+  AND t.status != 'done'
 ```
 
 **MTTR (Mean Time To Repair)**
@@ -189,7 +187,7 @@ I also spot‑checked the dashboard against ClickUp to confirm that filtering, p
 1. (Optional but recommended) Create and activate a virtual environment:
    ```bash
    python3 -m venv .venv
-   source .venv/bin/activate  # Mac/Linux
+   source .venv/bin/activate 
    ```
 
 2. Install dependencies:

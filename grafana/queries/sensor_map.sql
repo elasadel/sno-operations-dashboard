@@ -12,10 +12,10 @@ WITH tasks_enriched AS (
   WHERE status != 'done' AND tags NOT LIKE '%maintenance%'
 )
 SELECT 
-  o.sensor,
-  o.name,
-  o.lat, 
-  o.lon, 
+  s.sensor,
+  s.name,
+  s.lat, 
+  s.lon, 
   CASE 
     WHEN min(t.priority_number) = 1 THEN 'Urgent'
     WHEN min(t.priority_number) = 2 THEN 'High'
@@ -23,13 +23,13 @@ SELECT
     ELSE 'Healthy'
   END as priority_status,
   CASE 
-    WHEN o.sensor IN (${selected_sensors:sqlstring}) THEN 10
+    WHEN s.sensor IN (${selected_sensors:sqlstring}) THEN 10
     ELSE 5
   END AS marker_size,
   CASE 
-    WHEN o.sensor IN (${selected_sensors:sqlstring}) THEN o.sensor
+    WHEN s.sensor IN (${selected_sensors:sqlstring}) THEN s.sensor
     ELSE ''
   END AS label
-FROM observatories o
-LEFT JOIN tasks_enriched t ON o.sensor = t.sensor AND o.observatory_id = t.observatory_id
-GROUP BY o.sensor, o.name, o.lat, o.lon;
+FROM sensors s
+LEFT JOIN tasks_enriched t ON s.sensor = t.sensor AND s.observatory_id = t.observatory_id
+GROUP BY s.sensor, s.name, s.lat, s.lon
