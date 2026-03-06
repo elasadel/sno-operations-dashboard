@@ -1,11 +1,12 @@
 import os
 import requests
+from pathlib import Path
 from dotenv import load_dotenv
 import psycopg2
 from datetime import datetime
 import logging
 
-load_dotenv()
+load_dotenv(Path.home() / "code/secrets" / "sno.env")
 
 TOKEN = os.getenv('CLICKUP_API_TOKEN')
 LIST_ID = os.getenv('CLICKUP_LIST_ID')

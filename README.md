@@ -12,8 +12,9 @@ The solution is built around a **PostgreSQL database**, a **ClickUp → PostgreS
 
 **Database layer**
 
-- sensors stores the static description of each site: observatory_id, sensor identifier, human‑readable name, country, and lat / lon coordinates.
-- sno_tasks stores operational incidents and maintenance work coming from ClickUp: task identifiers and names, status, priority, assignee_name, lifecycle timestamps (created_date, due_date, closed_date, updated_at), free‑form tags, and operational details such as incident_type, estimated_hours, and actual_hours.
+- `sensors` stores the static description of each site: observatory_id, sensor identifier, human‑readable name, country, and lat / lon coordinates.
+- `sno_tasks` stores operational incidents and maintenance work coming from ClickUp: task identifiers and names, status, priority, assignee_name, lifecycle timestamps (created_date, due_date, closed_date, updated_at), free‑form tags, and operational details such as incident_type, estimated_hours, and actual_hours.
+- For query performance, indexes have been added on the sensor column in both `sensors` and `sno_tasks` tables to speed up joins and filters.
 
 **ETL / integration layer**
 
@@ -182,6 +183,16 @@ WHERE status = 'done'
 
 I also spot‑checked the dashboard against ClickUp to confirm that filtering, priorities, and counts in Grafana match the underlying task data.
 
+## Initial data setup
+
+Before running the ETL, populate the database and ClickUp with the provided synthetic data:
+
+1. Import `data/sensors.csv` into the `sensors` table in PostgreSQL.
+2. Import `data/clickup-tasks.csv` into your ClickUp list (the one referenced by `CLICKUP_LIST_ID`).
+3. Copy `.env.example` to `sno.env` and place it at `~/code/secrets/`, then fill in your credentials and connection details.  
+   Alternatively, keep it as `.env` in the project root and edit `fetch_clickup.py` to load from the correct path.
+
+
 ## Quick start
 
 1. (Optional but recommended) Create and activate a virtual environment:
@@ -224,8 +235,9 @@ I also spot‑checked the dashboard against ClickUp to confirm that filtering, p
   - No ClickUp pagination (assumes a relatively small list for the demo).
 - **Potential improvements**:
   - Add ClickUp pagination support.
-  - Add automated tests (especially around `transform_task` and DB interactions).
+  - Add automated tests (especially around `transform_task`).
   - Schedule the ETL script using a workflow tool such as cron or Apache Airflow.
+  - **Data retention strategy**: As `sno_tasks` grows over time, consider whether storing complete task records is necessary. The map and active incidents only need open/non-maintenance tasks, while aggregates (MTTR, effort accuracy) require historical completed tasks. A separate summary/aggregates table could optimize storage and query performance for long-term analytics.
 
 
 
