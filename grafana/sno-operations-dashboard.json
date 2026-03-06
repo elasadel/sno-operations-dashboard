@@ -1,20 +1,22 @@
 {
   "apiVersion": "dashboard.grafana.app/v2beta1",
-  "kind": "DashboardWithAccessInfo",
+  "kind": "Dashboard",
   "metadata": {
     "name": "elffkvf",
     "namespace": "stacks-1543212",
     "uid": "da64716e-d530-4874-86ea-90c6d4a98873",
-    "resourceVersion": "1772486760991945",
-    "generation": 58,
+    "resourceVersion": "1772790231902072",
+    "generation": 63,
     "creationTimestamp": "2026-03-02T15:23:16Z",
-    "labels": {},
+    "labels": {
+      "grafana.app/deprecatedInternalID": "1871501519507456"
+    },
     "annotations": {
       "grafana.app/createdBy": "user:ffesbxbkqt9mod",
       "grafana.app/folder": "",
       "grafana.app/saved-from-ui": "Grafana Cloud (steady)",
       "grafana.app/updatedBy": "user:ffesbxbkqt9mod",
-      "grafana.app/updatedTimestamp": "2026-03-02T21:26:00Z"
+      "grafana.app/updatedTimestamp": "2026-03-06T09:43:51Z"
     }
   },
   "spec": {
@@ -22,20 +24,20 @@
       {
         "kind": "AnnotationQuery",
         "spec": {
-          "builtIn": true,
+          "query": {
+            "kind": "DataQuery",
+            "group": "grafana",
+            "version": "v0",
+            "datasource": {
+              "name": "-- Grafana --"
+            },
+            "spec": {}
+          },
           "enable": true,
           "hide": true,
           "iconColor": "rgba(0, 211, 255, 1)",
           "name": "Annotations & Alerts",
-          "query": {
-            "datasource": {
-              "name": "-- Grafana --"
-            },
-            "group": "grafana",
-            "kind": "DataQuery",
-            "spec": {},
-            "version": "v0"
-          }
+          "builtIn": true
         }
       }
     ],
@@ -45,6 +47,10 @@
       "panel-1": {
         "kind": "Panel",
         "spec": {
+          "id": 1,
+          "title": "Active Incidents by Observatory",
+          "description": "",
+          "links": [],
           "data": {
             "kind": "QueryGroup",
             "spec": {
@@ -52,19 +58,19 @@
                 {
                   "kind": "PanelQuery",
                   "spec": {
-                    "hidden": false,
                     "query": {
+                      "kind": "DataQuery",
+                      "group": "grafana-postgresql-datasource",
+                      "version": "v0",
                       "datasource": {
                         "name": "afet67qw6aupsf"
                       },
-                      "group": "grafana-postgresql-datasource",
-                      "kind": "DataQuery",
                       "spec": {
                         "dataset": "dbhzmxgtopgnav",
                         "editorMode": "code",
                         "format": "table",
                         "rawQuery": true,
-                        "rawSql": "WITH tasks_enriched AS (\n  SELECT \n    sensor,\n    observatory_id,\n    priority,\n    CASE\n      WHEN priority = 'urgent' THEN 1\n      WHEN priority = 'high' THEN 2\n      ELSE 3  \n    END AS priority_number\n  FROM sno_tasks\n  WHERE status != 'done' AND tags NOT LIKE '%maintenance%'\n)\nSELECT \n  o.sensor,\n  o.name,\n  o.lat, \n  o.lon, \n  CASE \n    WHEN min(t.priority_number) = 1 THEN 'Urgent'\n    WHEN min(t.priority_number) = 2 THEN 'High'\n    WHEN min(t.priority_number) = 3 THEN 'Normal'\n    ELSE 'Healthy'\n  END as priority_status,\n  CASE \n    WHEN o.sensor IN (${selected_sensors:sqlstring}) THEN 10\n    ELSE 5\n  END AS marker_size,\n  CASE \n    WHEN o.sensor IN (${selected_sensors:sqlstring}) THEN o.sensor\n    ELSE ''\n  END AS label\nFROM observatories o\nLEFT JOIN tasks_enriched t ON o.sensor = t.sensor AND o.observatory_id = t.observatory_id\nGROUP BY o.sensor, o.name, o.lat, o.lon;",
+                        "rawSql": "WITH tasks_enriched AS (\n  SELECT \n    sensor,\n    observatory_id,\n    priority,\n    CASE\n      WHEN priority = 'urgent' THEN 1\n      WHEN priority = 'high' THEN 2\n      ELSE 3  \n    END AS priority_number\n  FROM sno_tasks\n  WHERE status != 'done' AND tags NOT LIKE '%maintenance%'\n)\nSELECT \n  s.sensor,\n  s.name,\n  s.lat, \n  s.lon, \n  CASE \n    WHEN min(t.priority_number) = 1 THEN 'Urgent'\n    WHEN min(t.priority_number) = 2 THEN 'High'\n    WHEN min(t.priority_number) = 3 THEN 'Normal'\n    ELSE 'Healthy'\n  END as priority_status,\n  CASE \n    WHEN s.sensor IN (${selected_sensors:sqlstring}) THEN 10\n    ELSE 5\n  END AS marker_size,\n  CASE \n    WHEN s.sensor IN (${selected_sensors:sqlstring}) THEN s.sensor\n    ELSE ''\n  END AS label\nFROM sensors s\nLEFT JOIN tasks_enriched t ON s.sensor = t.sensor AND s.observatory_id = t.observatory_id\nGROUP BY s.sensor, s.name, s.lat, s.lon\n\n",
                         "sql": {
                           "columns": [
                             {
@@ -82,14 +88,13 @@
                           ],
                           "limit": 50
                         }
-                      },
-                      "version": "v0"
+                      }
                     },
-                    "refId": "A"
+                    "refId": "A",
+                    "hidden": false
                   }
                 }
               ],
-              "queryOptions": {},
               "transformations": [
                 {
                   "kind": "organize",
@@ -108,71 +113,15 @@
                     }
                   }
                 }
-              ]
+              ],
+              "queryOptions": {}
             }
           },
-          "description": "",
-          "id": 1,
-          "links": [],
-          "title": "Active Incidents by Observatory",
           "vizConfig": {
-            "group": "geomap",
             "kind": "VizConfig",
+            "group": "geomap",
+            "version": "13.0.0-22478626928",
             "spec": {
-              "fieldConfig": {
-                "defaults": {
-                  "color": {
-                    "fixedColor": "dark-red",
-                    "mode": "thresholds"
-                  },
-                  "custom": {
-                    "hideFrom": {
-                      "legend": false,
-                      "tooltip": false,
-                      "viz": false
-                    }
-                  },
-                  "fieldMinMax": false,
-                  "mappings": [
-                    {
-                      "options": {
-                        "Heahty": {
-                          "color": "dark-green",
-                          "index": 3,
-                          "text": "Heahty"
-                        },
-                        "High": {
-                          "color": "dark-orange",
-                          "index": 1,
-                          "text": "High"
-                        },
-                        "Normal": {
-                          "color": "dark-yellow",
-                          "index": 2,
-                          "text": "Normal"
-                        },
-                        "Urgent": {
-                          "color": "dark-red",
-                          "index": 0,
-                          "text": "Urgent"
-                        }
-                      },
-                      "type": "value"
-                    }
-                  ],
-                  "thresholds": {
-                    "mode": "absolute",
-                    "steps": [
-                      {
-                        "color": "green",
-                        "value": 0
-                      }
-                    ]
-                  },
-                  "unit": "string"
-                },
-                "overrides": []
-              },
               "options": {
                 "basemap": {
                   "config": {
@@ -268,15 +217,72 @@
                   "shared": false,
                   "zoom": 15
                 }
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "string",
+                  "mappings": [
+                    {
+                      "type": "value",
+                      "options": {
+                        "Heahty": {
+                          "text": "Heahty",
+                          "color": "dark-green",
+                          "index": 3
+                        },
+                        "High": {
+                          "text": "High",
+                          "color": "dark-orange",
+                          "index": 1
+                        },
+                        "Normal": {
+                          "text": "Normal",
+                          "color": "dark-yellow",
+                          "index": 2
+                        },
+                        "Urgent": {
+                          "text": "Urgent",
+                          "color": "dark-red",
+                          "index": 0
+                        }
+                      }
+                    }
+                  ],
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "green"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "thresholds",
+                    "fixedColor": "dark-red"
+                  },
+                  "custom": {
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    }
+                  },
+                  "fieldMinMax": false
+                },
+                "overrides": []
               }
-            },
-            "version": "13.0.0-22326976726.patch2"
+            }
           }
         }
       },
       "panel-2": {
         "kind": "Panel",
         "spec": {
+          "id": 2,
+          "title": "Active Incidents Details",
+          "description": "",
+          "links": [],
           "data": {
             "kind": "QueryGroup",
             "spec": {
@@ -284,13 +290,13 @@
                 {
                   "kind": "PanelQuery",
                   "spec": {
-                    "hidden": false,
                     "query": {
+                      "kind": "DataQuery",
+                      "group": "grafana-postgresql-datasource",
+                      "version": "v0",
                       "datasource": {
                         "name": "afet67qw6aupsf"
                       },
-                      "group": "grafana-postgresql-datasource",
-                      "kind": "DataQuery",
                       "spec": {
                         "dataset": "dbhzmxgtopgnav",
                         "editorMode": "code",
@@ -314,27 +320,41 @@
                           ],
                           "limit": 50
                         }
-                      },
-                      "version": "v0"
+                      }
                     },
-                    "refId": "A"
+                    "refId": "A",
+                    "hidden": false
                   }
                 }
               ],
-              "queryOptions": {},
-              "transformations": []
+              "transformations": [],
+              "queryOptions": {}
             }
           },
-          "description": "",
-          "id": 2,
-          "links": [],
-          "title": "Active Incidents Details",
           "vizConfig": {
-            "group": "table",
             "kind": "VizConfig",
+            "group": "table",
+            "version": "13.0.0-22478626928",
             "spec": {
+              "options": {
+                "cellHeight": "sm",
+                "showHeader": true
+              },
               "fieldConfig": {
                 "defaults": {
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "green"
+                      },
+                      {
+                        "value": 80,
+                        "color": "red"
+                      }
+                    ]
+                  },
                   "color": {
                     "mode": "thresholds"
                   },
@@ -347,19 +367,6 @@
                       "reducers": []
                     },
                     "inspect": false
-                  },
-                  "thresholds": {
-                    "mode": "absolute",
-                    "steps": [
-                      {
-                        "color": "green",
-                        "value": 0
-                      },
-                      {
-                        "color": "red",
-                        "value": 80
-                      }
-                    ]
                   }
                 },
                 "overrides": [
@@ -415,19 +422,18 @@
                     ]
                   }
                 ]
-              },
-              "options": {
-                "cellHeight": "sm",
-                "showHeader": true
               }
-            },
-            "version": "13.0.0-22326976726.patch2"
+            }
           }
         }
       },
       "panel-3": {
         "kind": "Panel",
         "spec": {
+          "id": 3,
+          "title": "Unhealthy Sensors",
+          "description": "",
+          "links": [],
           "data": {
             "kind": "QueryGroup",
             "spec": {
@@ -435,19 +441,19 @@
                 {
                   "kind": "PanelQuery",
                   "spec": {
-                    "hidden": false,
                     "query": {
+                      "kind": "DataQuery",
+                      "group": "grafana-postgresql-datasource",
+                      "version": "v0",
                       "datasource": {
                         "name": "afet67qw6aupsf"
                       },
-                      "group": "grafana-postgresql-datasource",
-                      "kind": "DataQuery",
                       "spec": {
                         "dataset": "dbhzmxgtopgnav",
                         "editorMode": "code",
                         "format": "table",
                         "rawQuery": true,
-                        "rawSql": "SELECT \n  COUNT(DISTINCT CASE WHEN t.tags NOT LIKE '%maintenance%' THEN o.sensor END) * 100.00 \n  / COUNT(DISTINCT o.sensor) AS unhealthy_pct\nFROM observatories o\nLEFT JOIN sno_tasks t ON o.sensor = t.sensor AND t.status != 'done'\n",
+                        "rawSql": "SELECT \n  COUNT(DISTINCT CASE WHEN t.tags NOT LIKE '%maintenance%' THEN s.sensor END) * 100.00 \n  / COUNT(DISTINCT s.sensor) AS unhealthy_pct\nFROM sensors s\nLEFT JOIN sno_tasks t ON s.sensor = t.sensor AND t.status != 'done'\n",
                         "sql": {
                           "columns": [
                             {
@@ -465,47 +471,22 @@
                           ],
                           "limit": 50
                         }
-                      },
-                      "version": "v0"
+                      }
                     },
-                    "refId": "A"
+                    "refId": "A",
+                    "hidden": false
                   }
                 }
               ],
-              "queryOptions": {},
-              "transformations": []
+              "transformations": [],
+              "queryOptions": {}
             }
           },
-          "description": "",
-          "id": 3,
-          "links": [],
-          "title": "Unhealthy Sensors",
           "vizConfig": {
-            "group": "stat",
             "kind": "VizConfig",
+            "group": "stat",
+            "version": "13.0.0-22478626928",
             "spec": {
-              "fieldConfig": {
-                "defaults": {
-                  "color": {
-                    "mode": "thresholds"
-                  },
-                  "thresholds": {
-                    "mode": "absolute",
-                    "steps": [
-                      {
-                        "color": "green",
-                        "value": 0
-                      },
-                      {
-                        "color": "red",
-                        "value": 80
-                      }
-                    ]
-                  },
-                  "unit": "percent"
-                },
-                "overrides": []
-              },
               "options": {
                 "colorMode": "value",
                 "graphMode": "area",
@@ -523,15 +504,40 @@
                 "text": {},
                 "textMode": "auto",
                 "wideLayout": true
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "percent",
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "green"
+                      },
+                      {
+                        "value": 80,
+                        "color": "red"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "thresholds"
+                  }
+                },
+                "overrides": []
               }
-            },
-            "version": "13.0.0-22326976726.patch2"
+            }
           }
         }
       },
       "panel-4": {
         "kind": "Panel",
         "spec": {
+          "id": 4,
+          "title": "MTTR",
+          "description": "",
+          "links": [],
           "data": {
             "kind": "QueryGroup",
             "spec": {
@@ -539,13 +545,13 @@
                 {
                   "kind": "PanelQuery",
                   "spec": {
-                    "hidden": false,
                     "query": {
+                      "kind": "DataQuery",
+                      "group": "grafana-postgresql-datasource",
+                      "version": "v0",
                       "datasource": {
                         "name": "afet67qw6aupsf"
                       },
-                      "group": "grafana-postgresql-datasource",
-                      "kind": "DataQuery",
                       "spec": {
                         "dataset": "dbhzmxgtopgnav",
                         "editorMode": "code",
@@ -569,47 +575,22 @@
                           ],
                           "limit": 50
                         }
-                      },
-                      "version": "v0"
+                      }
                     },
-                    "refId": "A"
+                    "refId": "A",
+                    "hidden": false
                   }
                 }
               ],
-              "queryOptions": {},
-              "transformations": []
+              "transformations": [],
+              "queryOptions": {}
             }
           },
-          "description": "",
-          "id": 4,
-          "links": [],
-          "title": "MTTR",
           "vizConfig": {
-            "group": "stat",
             "kind": "VizConfig",
+            "group": "stat",
+            "version": "13.0.0-22478626928",
             "spec": {
-              "fieldConfig": {
-                "defaults": {
-                  "color": {
-                    "mode": "thresholds"
-                  },
-                  "thresholds": {
-                    "mode": "absolute",
-                    "steps": [
-                      {
-                        "color": "green",
-                        "value": 0
-                      },
-                      {
-                        "color": "red",
-                        "value": 80
-                      }
-                    ]
-                  },
-                  "unit": "h"
-                },
-                "overrides": []
-              },
               "options": {
                 "colorMode": "value",
                 "graphMode": "area",
@@ -626,15 +607,40 @@
                 "showPercentChange": false,
                 "textMode": "auto",
                 "wideLayout": true
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "h",
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "green"
+                      },
+                      {
+                        "value": 80,
+                        "color": "red"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "thresholds"
+                  }
+                },
+                "overrides": []
               }
-            },
-            "version": "13.0.0-22326976726.patch2"
+            }
           }
         }
       },
       "panel-5": {
         "kind": "Panel",
         "spec": {
+          "id": 5,
+          "title": "Effort Accuracy Ratio",
+          "description": "",
+          "links": [],
           "data": {
             "kind": "QueryGroup",
             "spec": {
@@ -642,13 +648,13 @@
                 {
                   "kind": "PanelQuery",
                   "spec": {
-                    "hidden": false,
                     "query": {
+                      "kind": "DataQuery",
+                      "group": "grafana-postgresql-datasource",
+                      "version": "v0",
                       "datasource": {
                         "name": "afet67qw6aupsf"
                       },
-                      "group": "grafana-postgresql-datasource",
-                      "kind": "DataQuery",
                       "spec": {
                         "dataset": "dbhzmxgtopgnav",
                         "editorMode": "code",
@@ -672,72 +678,22 @@
                           ],
                           "limit": 50
                         }
-                      },
-                      "version": "v0"
+                      }
                     },
-                    "refId": "A"
+                    "refId": "A",
+                    "hidden": false
                   }
                 }
               ],
-              "queryOptions": {},
-              "transformations": []
+              "transformations": [],
+              "queryOptions": {}
             }
           },
-          "description": "",
-          "id": 5,
-          "links": [],
-          "title": "Effort Accuracy Ratio",
           "vizConfig": {
-            "group": "stat",
             "kind": "VizConfig",
+            "group": "stat",
+            "version": "13.0.0-22478626928",
             "spec": {
-              "fieldConfig": {
-                "defaults": {
-                  "color": {
-                    "mode": "thresholds"
-                  },
-                  "decimals": 2,
-                  "thresholds": {
-                    "mode": "absolute",
-                    "steps": [
-                      {
-                        "color": "green",
-                        "value": 0
-                      },
-                      {
-                        "color": "red",
-                        "value": 0
-                      },
-                      {
-                        "color": "orange",
-                        "value": 0.3
-                      },
-                      {
-                        "color": "yellow",
-                        "value": 0.5
-                      },
-                      {
-                        "color": "green",
-                        "value": 0.8
-                      },
-                      {
-                        "color": "#EAB839",
-                        "value": 1.2
-                      },
-                      {
-                        "color": "orange",
-                        "value": 1.5
-                      },
-                      {
-                        "color": "red",
-                        "value": 2
-                      }
-                    ]
-                  },
-                  "unit": "none"
-                },
-                "overrides": []
-              },
               "options": {
                 "colorMode": "value",
                 "graphMode": "area",
@@ -754,9 +710,55 @@
                 "showPercentChange": false,
                 "textMode": "auto",
                 "wideLayout": true
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "none",
+                  "decimals": 2,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "green"
+                      },
+                      {
+                        "value": 0,
+                        "color": "red"
+                      },
+                      {
+                        "value": 0.3,
+                        "color": "orange"
+                      },
+                      {
+                        "value": 0.5,
+                        "color": "yellow"
+                      },
+                      {
+                        "value": 0.8,
+                        "color": "green"
+                      },
+                      {
+                        "value": 1.2,
+                        "color": "#EAB839"
+                      },
+                      {
+                        "value": 1.5,
+                        "color": "orange"
+                      },
+                      {
+                        "value": 2,
+                        "color": "red"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "thresholds"
+                  }
+                },
+                "overrides": []
               }
-            },
-            "version": "13.0.0-22326976726.patch2"
+            }
           }
         }
       }
@@ -768,66 +770,66 @@
           {
             "kind": "GridLayoutItem",
             "spec": {
+              "x": 0,
+              "y": 0,
+              "width": 6,
+              "height": 5,
               "element": {
                 "kind": "ElementReference",
                 "name": "panel-3"
-              },
-              "height": 5,
-              "width": 6,
-              "x": 0,
-              "y": 0
+              }
             }
           },
           {
             "kind": "GridLayoutItem",
             "spec": {
+              "x": 6,
+              "y": 0,
+              "width": 8,
+              "height": 5,
               "element": {
                 "kind": "ElementReference",
                 "name": "panel-4"
-              },
-              "height": 5,
-              "width": 8,
-              "x": 6,
-              "y": 0
+              }
             }
           },
           {
             "kind": "GridLayoutItem",
             "spec": {
+              "x": 14,
+              "y": 0,
+              "width": 9,
+              "height": 5,
               "element": {
                 "kind": "ElementReference",
                 "name": "panel-5"
-              },
-              "height": 5,
-              "width": 9,
-              "x": 14,
-              "y": 0
+              }
             }
           },
           {
             "kind": "GridLayoutItem",
             "spec": {
+              "x": 0,
+              "y": 5,
+              "width": 23,
+              "height": 13,
               "element": {
                 "kind": "ElementReference",
                 "name": "panel-1"
-              },
-              "height": 13,
-              "width": 23,
-              "x": 0,
-              "y": 5
+              }
             }
           },
           {
             "kind": "GridLayoutItem",
             "spec": {
+              "x": 0,
+              "y": 18,
+              "width": 23,
+              "height": 13,
               "element": {
                 "kind": "ElementReference",
                 "name": "panel-2"
-              },
-              "height": 13,
-              "width": 23,
-              "x": 0,
-              "y": 18
+              }
             }
           }
         ]
@@ -838,6 +840,9 @@
     "preload": false,
     "tags": [],
     "timeSettings": {
+      "timezone": "browser",
+      "from": "now-6h",
+      "to": "now",
       "autoRefresh": "",
       "autoRefreshIntervals": [
         "5s",
@@ -851,42 +856,37 @@
         "2h",
         "1d"
       ],
-      "fiscalYearStartMonth": 0,
-      "from": "now-6h",
       "hideTimepicker": false,
-      "timezone": "browser",
-      "to": "now"
+      "fiscalYearStartMonth": 0
     },
     "title": "SNO Operations",
     "variables": [
       {
         "kind": "QueryVariable",
         "spec": {
-          "allowCustomValue": true,
-          "current": {
-            "text": "CONST-003",
-            "value": "CONST-003"
-          },
-          "definition": "SELECT DISTINCT sensor FROM observatories",
-          "hide": "dontHide",
-          "includeAll": true,
-          "label": "Sensors",
-          "multi": false,
           "name": "selected_sensors",
-          "options": [],
+          "current": {
+            "text": "All",
+            "value": "$__all"
+          },
+          "label": "Sensors",
+          "hide": "dontHide",
+          "refresh": "onDashboardLoad",
+          "skipUrlSync": false,
           "query": {
+            "kind": "DataQuery",
+            "group": "grafana-postgresql-datasource",
+            "version": "v0",
             "datasource": {
               "name": "afet67qw6aupsf"
             },
-            "group": "grafana-postgresql-datasource",
-            "kind": "DataQuery",
             "spec": {
               "dataset": "dbhzmxgtopgnav",
               "editorMode": "code",
               "format": "table",
-              "query": "SELECT DISTINCT sensor FROM observatories",
+              "query": "SELECT DISTINCT sensor FROM sensors",
               "rawQuery": true,
-              "rawSql": "SELECT DISTINCT sensor FROM observatories",
+              "rawSql": "SELECT DISTINCT sensor FROM sensors",
               "refId": "SQLVariableQueryEditor-VariableQuery",
               "sql": {
                 "columns": [
@@ -905,17 +905,18 @@
                 ],
                 "limit": 50
               }
-            },
-            "version": "v0"
+            }
           },
-          "refresh": "onDashboardLoad",
           "regex": "",
           "regexApplyTo": "value",
-          "skipUrlSync": false,
-          "sort": "disabled"
+          "sort": "disabled",
+          "definition": "SELECT DISTINCT sensor FROM sensors",
+          "options": [],
+          "multi": false,
+          "includeAll": true,
+          "allowCustomValue": true
         }
       }
     ]
-  },
-  "status": {}
+  }
 }
