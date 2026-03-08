@@ -16,6 +16,43 @@ The solution is built around a **PostgreSQL database**, a **ClickUp → PostgreS
 - `sno_tasks` stores operational incidents and maintenance work coming from ClickUp: task identifiers and names, status, priority, assignee_name, lifecycle timestamps (created_date, due_date, closed_date, updated_at), free‑form tags, and operational details such as incident_type, estimated_hours, and actual_hours.
 - For query performance, indexes have been added on the sensor column in both `sensors` and `sno_tasks` tables to speed up joins and filters.
 
+**Database schema**
+
+The PostgreSQL schema consists of two tables with a foreign key relationship and an index for performance:
+
+```sql
+CREATE TABLE sensors (
+    observatory_id VARCHAR(100) NOT NULL,
+    sensor VARCHAR(100) NOT NULL,
+    name VARCHAR(255),
+    country VARCHAR(100),
+    lat DECIMAL(10,8),
+    lon DECIMAL(11,8),
+    PRIMARY KEY (sensor, observatory_id)
+);
+
+CREATE TABLE sno_tasks (
+    task_id VARCHAR(255) PRIMARY KEY,
+    task_name TEXT NOT NULL,
+    status VARCHAR(100),
+    priority VARCHAR(50) DEFAULT 'normal',
+    assignee_name VARCHAR(255),
+    created_date TIMESTAMP,
+    due_date TIMESTAMP,
+    closed_date TIMESTAMP,
+    tags TEXT,
+    observatory_id VARCHAR(100) NOT NULL,
+    sensor VARCHAR(100) NOT NULL,
+    incident_type VARCHAR(100),
+    estimated_hours DECIMAL(10,2),
+    actual_hours DECIMAL(10,2),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    FOREIGN KEY (sensor, observatory_id) REFERENCES sensors(sensor, observatory_id)
+);
+
+CREATE INDEX idx_sno_tasks_observatory_sensor ON sno_tasks(observatory_id, sensor);
+```
+
 **ETL / integration layer**
 
 - A Python script (fetch_clickup.py) connects to the ClickUp API using environment variables (list ID and API token).
@@ -239,9 +276,14 @@ While this project provides a functional end-to-end pipeline, it is designed as 
 
 
 **Reliability & Data Integrity**
-- **Handling New Sensors ("Graceful Degradation")**: To avoid orphaned records, the ETL should be updated to detect tasks for sensors not yet in the sensors table. These should be auto-provisioned as "Pending Location" placeholders so the incident remains visible while coordinates are being sourced.
-- **Referential Integrity**: Future iterations should move from VARCHAR links to formal Foreign Key constraints between `sno_tasks` and `sensors` to prevent data mismatches.
-- **Automated Testing**: Adding unit tests for the transform_task logic would ensure that changes to ClickUp's API or custom fields don't break the dashboard metrics.
+- **Handling New Sensors ("Graceful Degradation")**: The ETL currently enforces referential
+  integrity via a foreign key between `sno_tasks` and `sensors`. If a ClickUp task references
+  a sensor not yet in the `sensors` table, the insert is blocked. A future improvement is to
+  auto-provision an "Unknown / Pending Location" placeholder row so incidents remain visible
+  on the dashboard while coordinates are being sourced.
+- **Automated Testing**: Adding unit tests for the `transform_task` logic would ensure that
+  changes to ClickUp's API or custom fields don't break the dashboard metrics.
+
 
 **Automation & Monitoring**
 - **Orchestration**: Moving the Python script from a manual run to a scheduled tool like Apache Airflow or a simple Cron job for continuous updates.
