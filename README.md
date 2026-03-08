@@ -240,9 +240,9 @@ While this project provides a functional end-to-end pipeline, it is designed as 
 
 **Reliability & Data Integrity**
 - **Handling New Sensors ("Graceful Degradation")**: To avoid orphaned records, the ETL should be updated to detect tasks for sensors not yet in the sensors table. These should be auto-provisioned as "Pending Location" placeholders so the incident remains visible while coordinates are being sourced.
-- **Referential Integrity**: Future iterations should move from VARCHAR links to formal Foreign Key constraints between sno_tasks and sensors to prevent data mismatches.
+- **Referential Integrity**: Future iterations should move from VARCHAR links to formal Foreign Key constraints between `sno_tasks` and `sensors` to prevent data mismatches.
 - **Automated Testing**: Adding unit tests for the transform_task logic would ensure that changes to ClickUp's API or custom fields don't break the dashboard metrics.
 
 **Automation & Monitoring**
 - **Orchestration**: Moving the Python script from a manual run to a scheduled tool like Apache Airflow or a simple Cron job for continuous updates.
-- **Standardized Filtering**: Replacing string-based SQL filters (e.g., LIKE %maintenance%) with specific ClickUp Category IDs to ensure the dashboard remains accurate even if a user renames a status or tag in the UI.
+- **Standardized Filtering**: Replace string-based SQL filters (e.g., `LIKE %maintenance%`) with specific ClickUp Category IDs to ensure accuracy if UI labels change. Alternatively, the ETL script could be configured to only load non-maintenance tasks into the database in the first place, removing the need for this filtering logic in Grafana altogether.
