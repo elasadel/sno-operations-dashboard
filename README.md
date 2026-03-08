@@ -230,14 +230,19 @@ Before running the ETL, populate the database and ClickUp with the provided synt
 - ClickUp REST API
 
 ## Limitations and future improvements
+While this project provides a functional end-to-end pipeline, it is designed as a starting point. To move this into a production environment, the following improvements would be prioritized:
 
-- **Current limitations**:
-  - No ClickUp pagination (assumes a relatively small list for the demo).
-- **Potential improvements**:
-  - Add ClickUp pagination support.
-  - Add automated tests (especially around `transform_task`).
-  - Schedule the ETL script using a workflow tool such as cron or Apache Airflow.
-  - **Data retention strategy**: As `sno_tasks` grows over time, consider whether storing complete task records is necessary. The map and active incidents only need open/non-maintenance tasks, while aggregates (MTTR, effort accuracy) require historical completed tasks. A separate summary/aggregates table could optimize storage and query performance for long-term analytics.
+**Data Architecture & Scalability**
+- **Transition to a Star Schema**: Currently, the data is relatively flat. As the dataset grows, moving to a Star Schema—with a central fact_incidents table and dimension tables for sensors, assignees, and priorities—will keep Grafana queries fast and make reporting more flexible.
+- **Data Retention & Aggregates**: To handle years of data without slowing down the dashboard, I would implement a summary table for historical metrics (MTTR, effort accuracy) and keep the main table focused on recent and active incidents.
+- **Pagination Support**: The ETL currently assumes a small incident list. For larger networks, ClickUp API pagination is required to ensure no tasks are missed during sync.
 
 
+**Reliability & Data Integrity**
+- **Handling New Sensors ("Graceful Degradation")**: To avoid orphaned records, the ETL should be updated to detect tasks for sensors not yet in the sensors table. These should be auto-provisioned as "Pending Location" placeholders so the incident remains visible while coordinates are being sourced.
+- **Referential Integrity**: Future iterations should move from VARCHAR links to formal Foreign Key constraints between sno_tasks and sensors to prevent data mismatches.
+- **Automated Testing**: Adding unit tests for the transform_task logic would ensure that changes to ClickUp's API or custom fields don't break the dashboard metrics.
 
+**Automation & Monitoring**
+- **Orchestration**: Moving the Python script from a manual run to a scheduled tool like Apache Airflow or a simple Cron job for continuous updates.
+- **Standardized Filtering**: Replacing string-based SQL filters (e.g., LIKE %maintenance%) with specific ClickUp Category IDs to ensure the dashboard remains accurate even if a user renames a status or tag in the UI.
