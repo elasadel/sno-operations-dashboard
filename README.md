@@ -50,7 +50,7 @@ CREATE TABLE sno_tasks (
     FOREIGN KEY (sensor, observatory_id) REFERENCES sensors(sensor, observatory_id)
 );
 
-CREATE INDEX idx_sno_tasks_observatory_sensor ON sno_tasks(observatory_id, sensor);
+CREATE INDEX idx_sno_tasks_observatory_sensor ON sno_tasks(sensor, observatory_id);
 ```
 
 **ETL / integration layer**
